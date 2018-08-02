@@ -9,7 +9,6 @@ export default class Circle extends Component {
     }
   }
 
-
   componentDidMount() {
     this.onMove()
   }
@@ -17,22 +16,23 @@ export default class Circle extends Component {
   onMove = () => {
     const anim1 = Animated.timing(this.state.marginLeft, {
       toValue: 160,
-      duration: 1000,
+      duration: 2000,
       easing: Easing.linear()
     })
     const anim2 = Animated.timing(this.state.marginLeft, {
       toValue: 0,
-      duration: 1000,
+      duration: 2000,
       easing: Easing.linear()
     })
 
-    this.props.status ? Animated.sequence([anim1, anim2]).start(() => this.onMove()) : Animated.sequence([anim2, anim1]).start(()=>this.onMove())
+    this.props.status ? Animated.sequence([anim1, anim2]).start(() => this.onMove()) : Animated.sequence([anim2, anim1]).start(() => this.onMove())
   }
 
   render() {
     const { marginLeft } = this.state
     return (
       <Animated.View
+        onLayout={this.props.onLayout}
         style={{
           height: 16,
           width: 16,
@@ -41,8 +41,6 @@ export default class Circle extends Component {
           marginLeft,
           ...this.props.style,
         }}
-        // onLayout={e => console.log(e.nativeEvent.layout.x)}
-
       >
       </Animated.View>
     );

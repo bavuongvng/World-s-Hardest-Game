@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { View, StyleSheet, Dimensions } from 'react-native';
 
 const { width, height } = Dimensions.get('window')
+console.log(width/2,height/2)
 
 import Map2 from '../components/map2'
 
@@ -34,7 +35,6 @@ class Level2 extends Component {
         y: locationY
       })
     }
-
   }
   onMove = e => {
     const { x, y, top, left } = this.state
@@ -56,15 +56,11 @@ class Level2 extends Component {
   render() {
     const { marginLeft, marginTop } = this.state
     return (
-      <View
-        style={styles.root}
-
-      >
+      <View style={styles.root}>
         <View style={[styles.box, { marginTop, marginLeft }]} />
         <View style={styles.goal} >
         </View>
-        <View style={styles.container}
-        >
+        <View style={styles.container}>
           {this.renderSquare()}
           <View style={{ position: 'absolute' }} ><Map2 /></View>
         </View>
@@ -75,7 +71,7 @@ class Level2 extends Component {
           onMoveShouldSetResponder={e => true}
           onResponderGrant={this.onPress}
           onResponderMove={this.onMove}
-          onResponderRelease={this.onRelease}/>
+          onResponderRelease={this.onRelease} />
       </View>
     )
   }

@@ -6,12 +6,17 @@ const { width, height } = Dimensions.get("window")
 
 export default class Level1 extends Component {
   state = {
-    x: 100,
-    y: 100,
+    x: 0,
+    y: 0,
     marginLeft: 0,
     marginTop: 0,
     top: 0,
-    left: 0
+    left: 0,
+    locationBoxX: 0,
+    locationBoxY: 0,
+    locationCircleX: 0,
+    locationCircleY: 0,
+    isMove: true
   }
 
   onPress = e => {
@@ -19,7 +24,8 @@ export default class Level1 extends Component {
     if (locationX >= 0 && locationX <= 180 && locationY >= 0 && locationY <= 180) {
       this.setState({
         x: locationX,
-        y: locationY
+        y: locationY,
+        isMove: true
       })
     }
   }
@@ -29,10 +35,18 @@ export default class Level1 extends Component {
     if (locationX >= 0 && locationX <= 180 && locationY >= 0 && locationY <= 180) {
       const marginLeft = locationX - x + left
       const marginTop = locationY - y + top
-      this.setState({ marginTop })
-      if (marginLeft >= 0 && marginLeft + 20 <= width) {
-        this.setState({ marginLeft })
+      if ((marginLeft <= 15 && marginTop <= -15) || (marginLeft >= 190 && marginTop >= -40)) {
+        // ko lm j ca
+      } else {
+        if (marginTop <= 15 && marginTop >= -70) {
+          this.setState({ marginTop })
+        }
+        if (marginLeft >= -15 && marginLeft <= 230) {
+          this.setState({ marginLeft })
+        }
       }
+
+
     }
   }
   onRelease = e => {
@@ -41,7 +55,6 @@ export default class Level1 extends Component {
       left: this.state.marginLeft
     })
   }
-
   renderMap = () => {
     const map = []
     for (let i = 0; i < 45; i++) {
@@ -58,26 +71,65 @@ export default class Level1 extends Component {
     >
     </View>)
   }
-
   renderCircle = () => {
     const circles = []
     for (let i = 0; i < 5; i++) {
       circles.push(i * 20)
     }
     return circles.map((circle, index) => <Circle
+      onLayout={this.onCirclesMove}
       key={index}
       status={index % 2 === 0}
       style={{
         position: 'absolute',
-        top: circle,
-        left: 0
+        top: circle + height / 2 - 60,
+        left: width / 2 - 90
       }}
     />)
+  }
+  onBoxMove = e => {
+    const { marginLeft, marginTop } = this.state
+    const { x, y } = e.nativeEvent.layout
+    this.setState({ locationBoxX: x, locationBoxY: y })
+    if (marginLeft >= 205 && marginTop <= -40) {
+      return alert('You win')
+    }
+  }
+  onCirclesMove = e => {
+    const { locationBoxX, locationBoxY, locationCircleX, locationCircleY } = this.state
+    const { x, y } = e.nativeEvent.layout
+    this.setState({ locationCircleX: x, locationCircleY: y }, () => {
+      if ((locationBoxX >= locationCircleX - 15 && locationBoxX <= locationCircleX + 15) &&
+        (locationBoxY >= locationCircleY - 15 && locationBoxY <= locationCircleY + 15)) {
+        this.setState({
+          marginLeft: 0,
+          marginTop: 0,
+          top: 0,
+          left: 0,
+          x: locationBoxX,
+          y: locationBoxY
+        })
+      }
+    })
+  }
+
+  shouldComponentUpdate(nextProp, nextState) {
+    const { locationBoxX, locationBoxY, locationCircleX, locationCircleY } = nextState
+    if (locationBoxX !== this.state.locationBoxX ||
+      locationBoxY !== this.state.locationBoxY ||
+      locationCircleX !== this.state.locationCircleX ||
+      locationCircleY !== this.state.locationCircleY
+    ) {
+      return false
+    }
+    return true
   }
 
   render() {
 
     const { marginLeft, marginTop } = this.state
+
+
 
     return (
       <View style={styles.root}>
@@ -85,17 +137,18 @@ export default class Level1 extends Component {
           <View style={[styles.goal, { marginTop: 60 }]} />
           <View style={styles.containerContent}>
             {this.renderMap()}
-            {this.renderCircle()}
           </View>
           <View style={[styles.goal]} />
         </View>
         <View
-          // onLayout={e => console.log(e.nativeEvent.layout.x,e.nativeEvent.layout.y)}
+          onLayout={this.onBoxMove}
           style={[styles.box, { marginLeft, marginTop }]} />
+        {this.renderCircle()}
+
         <View
           style={styles.touchContainer}
           onStartShouldSetResponder={e => true}
-          onMoveShouldSetResponder={e => true}
+          onMoveShouldSetResponder={this.state.isMove}
           onResponderGrant={this.onPress}
           onResponderMove={this.onMove}
           onResponderRelease={this.onRelease} />
