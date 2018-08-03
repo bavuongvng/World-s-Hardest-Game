@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import { View, StyleSheet, Dimensions } from 'react-native';
 
 const { width, height } = Dimensions.get('window')
-console.log(width/2,height/2)
 
 import Map2 from '../components/map2'
 

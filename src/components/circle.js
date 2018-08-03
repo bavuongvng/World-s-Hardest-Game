@@ -8,20 +8,18 @@ export default class Circle extends Component {
       marginLeft: this.props.status ? new Animated.Value(0) : new Animated.Value(160)
     }
   }
-
   componentDidMount() {
     this.onMove()
   }
-
   onMove = () => {
     const anim1 = Animated.timing(this.state.marginLeft, {
       toValue: 160,
-      duration: 2000,
+      duration: 800,
       easing: Easing.linear()
     })
     const anim2 = Animated.timing(this.state.marginLeft, {
       toValue: 0,
-      duration: 2000,
+      duration: 800,
       easing: Easing.linear()
     })
 

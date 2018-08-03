@@ -16,9 +16,9 @@ export default class Level1 extends Component {
     locationBoxY: 0,
     locationCircleX: 0,
     locationCircleY: 0,
-    isMove: true
+    isMove: true,
+    reset: false
   }
-
   onPress = e => {
     const { locationX, locationY } = e.nativeEvent
     if (locationX >= 0 && locationX <= 180 && locationY >= 0 && locationY <= 180) {
@@ -40,13 +40,13 @@ export default class Level1 extends Component {
       } else {
         if (marginTop <= 15 && marginTop >= -70) {
           this.setState({ marginTop })
+          this.refs.blueBox.setNativeProps({ marginTop: marginTop })
         }
         if (marginLeft >= -15 && marginLeft <= 230) {
           this.setState({ marginLeft })
+          this.refs.blueBox.setNativeProps({ marginLeft: marginLeft })
         }
       }
-
-
     }
   }
   onRelease = e => {
@@ -107,29 +107,20 @@ export default class Level1 extends Component {
           top: 0,
           left: 0,
           x: locationBoxX,
-          y: locationBoxY
+          y: locationBoxY,
         })
+        this.refs.blueBox.setNativeProps({ marginLeft: 0 })
+        this.refs.blueBox.setNativeProps({ marginTop: 0 })
+
       }
     })
   }
-
   shouldComponentUpdate(nextProp, nextState) {
-    const { locationBoxX, locationBoxY, locationCircleX, locationCircleY } = nextState
-    if (locationBoxX !== this.state.locationBoxX ||
-      locationBoxY !== this.state.locationBoxY ||
-      locationCircleX !== this.state.locationCircleX ||
-      locationCircleY !== this.state.locationCircleY
-    ) {
-      return false
-    }
-    return true
+    return false
   }
 
   render() {
-
     const { marginLeft, marginTop } = this.state
-
-
 
     return (
       <View style={styles.root}>
@@ -141,8 +132,11 @@ export default class Level1 extends Component {
           <View style={[styles.goal]} />
         </View>
         <View
+          ref={'blueBox'}
           onLayout={this.onBoxMove}
-          style={[styles.box, { marginLeft, marginTop }]} />
+          style={[styles.box,
+            // { marginLeft, marginTop }
+          ]} />
         {this.renderCircle()}
 
         <View
