@@ -1,73 +1,129 @@
 import React, { Component } from 'react'
-import { View, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
 
+import MapLevel2 from '../components/mapLevel2'
+import CircleSquare from '../components/CircleSquare'
 const { width, height } = Dimensions.get('window')
 
-import Map2 from '../components/map2'
-
-class Level2 extends Component {
+export default class Level2 extends Component {
   state = {
+    isMove: true,
     x: 0,
     y: 0,
-    marginTop: 0,
     marginLeft: 0,
+    marginTop: 0,
     top: 0,
-    left: 0
+    left: 0,
+    locationBoxX: 0,
+    locationBoxY: 0,
+    locationCircleX: 0,
+    locationCircleY: 0,
+    radian: 0
   }
-  renderSquare = () => {
-    let squares = []
-    for (let i = 0; i < 25; i++) {
-      squares.push(i)
-    }
-    return squares.map((square, index) => <View
-      key={index}
-      style={[styles.square, {
-        backgroundColor: index % 2 === 0 ? 'gray' : 'white'
-      }]}
-    />)
+  radianChange = radian => {
+    this.setState({ radian })
   }
   onPress = e => {
     const { locationX, locationY } = e.nativeEvent
     if (locationX >= 0 && locationX <= 180 && locationY >= 0 && locationY <= 180) {
       this.setState({
         x: locationX,
-        y: locationY
+        y: locationY,
+        isMove: true
       })
     }
   }
   onMove = e => {
-    const { x, y, top, left } = this.state
     const { locationX, locationY } = e.nativeEvent
+    const { x, y, top, left } = this.state
     if (locationX >= 0 && locationX <= 180 && locationY >= 0 && locationY <= 180) {
-      let marginLeft = locationX - x + left
-      let marginTop = locationY - y + top
-      this.setState({ marginTop, marginLeft })
+      const marginLeft = locationX - x + left
+      const marginTop = locationY - y + top
+      if (marginLeft >= -160 && marginLeft <= 95) {
+        this.setState({ marginLeft })
+        this.refs.blueBox.setNativeProps({ marginLeft: marginLeft })
+      }
+      if (marginTop >= -20 && marginTop <= 235) {
+        this.setState({ marginTop })
+        this.refs.blueBox.setNativeProps({ marginTop: marginTop })
+      }
     }
-
   }
   onRelease = e => {
-    const { marginLeft, marginTop } = this.state
     this.setState({
-      top: marginTop,
-      left: marginLeft
+      top: this.state.marginTop,
+      left: this.state.marginLeft
     })
   }
+
+  onCirclesMove = (circleX, circleY) => {
+    const { locationBoxX, locationBoxY, locationCircleX, locationCircleY, marginTop, marginLeft } = this.state
+    this.setState({ locationCircleX: circleX, locationCircleY: circleY }, () => {
+      for (let i = 0; i < 9; i++) {
+        const locationCircleXx = locationCircleX + i * 20
+        const locationCircleYy = locationCircleX / Math.tan(this.state.radian)
+        if ((locationBoxX >= locationCircleXx - 20 && locationBoxX <= locationCircleXx + 20) &&
+          (locationBoxY >= locationCircleYy - 20 && locationBoxY <= locationCircleYy + 20)) {
+          this.setState({
+            marginLeft: -1600,
+            marginTop: -2000,
+            top: 0,
+            left: 0,
+            x: locationBoxX,
+            y: locationBoxY,
+          })
+          this.refs.blueBox.setNativeProps({ marginLeft: 0 })
+          this.refs.blueBox.setNativeProps({ marginTop: 0 })
+        }
+      }
+
+    })
+  }
+
+  shouldComponentUpdate() {
+    return false
+  }
+
+  renderCircle = () => {
+    let circles = []
+    for (let i = 0; i < 2; i++) {
+      circles.push(i)
+    }
+    return circles.map((item, index) => <CircleSquare
+      key={item}
+      index={index}
+      scircleSquare={styles.scircleSquare}
+      onCircleMove={(circleX, circleY) => this.onCirclesMove(circleX, circleY)}
+      radianChange={radian => this.radianChange(radian)}
+    />)
+  }
+
+  onBoxMove = e => {
+    const { x, y } = e.nativeEvent.layout
+    console.log(x, y)
+    this.setState({
+      locationBoxY: y,
+      locationBoxX: x
+    })
+  }
+
   render() {
-    const { marginLeft, marginTop } = this.state
     return (
       <View style={styles.root}>
-        <View style={[styles.box, { marginTop, marginLeft }]} />
-        <View style={styles.goal} >
-        </View>
-        <View style={styles.container}>
-          {this.renderSquare()}
-          <View style={{ position: 'absolute' }} ><Map2 /></View>
-        </View>
-        <View style={styles.goal} ></View>
+        <MapLevel2 style={styles.map2Style}
+          onCircleMove={(circleX, circleY) => this.onCirclesMove(circleX, circleY)}
+        />
+        <View style={[styles.goal, { top: height / 2 - 60 - 105, left: width / 2 - 30 }]} />
+        <View style={[styles.goal, { top: height / 2 - 30, left: width / 2 - 105 - 60 }]} />
+        <View
+          onLayout={this.onBoxMove}
+          style={styles.blueBox}
+          ref='blueBox' />
+        {this.renderCircle()}
         <View
           style={styles.touchContainer}
           onStartShouldSetResponder={e => true}
-          onMoveShouldSetResponder={e => true}
+          onMoveShouldSetResponder={this.state.isMove}
           onResponderGrant={this.onPress}
           onResponderMove={this.onMove}
           onResponderRelease={this.onRelease} />
@@ -77,6 +133,18 @@ class Level2 extends Component {
 }
 
 const styles = StyleSheet.create({
+  scircleSquare: {
+    position: 'absolute',
+    top: height / 2 - 100,
+    left: width / 2 - 10
+  },
+  goal: {
+    width: 60,
+    height: 60,
+    backgroundColor: 'cyan',
+    position: 'absolute',
+    zIndex: 1
+  },
   touchContainer: {
     backgroundColor: 'green',
     left: width / 2 - 100,
@@ -85,46 +153,25 @@ const styles = StyleSheet.create({
     height: 180,
     top: height - 205,
     left: width - 180,
-    borderRadius: 100
+    borderRadius: 100,
+    zIndex: 2
+  },
+  blueBox: {
+    width: 20,
+    height: 20,
+    backgroundColor: 'blue',
+    position: 'absolute',
+    zIndex: 2,
+    top: height / 2 - 40 - 105,
+    left: width / 2 - 30 + 20
   },
   root: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'violet',
-  },
-  container: {
-    backgroundColor: 'green',
-    width: 150,
-    height: 150,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    alignItems: 'center',
     position: 'relative',
-    zIndex: 1
+    flex: 1
   },
-  square: {
-    width: 30,
-    height: 30
-  },
-  goal: {
-    width: 40,
-    height: 40,
-    backgroundColor: 'cyan',
-    position: 'relative',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  box: {
+  map2Style: {
     position: 'absolute',
-    height: 20,
-    width: 20,
-    backgroundColor: 'blue',
-    top: height / 2 - 115,
-    left: width / 2 - 10,
-    zIndex: 2
+    top: height / 2 - 105,
+    left: width / 2 - 105
   }
 })
-
-export default Level2

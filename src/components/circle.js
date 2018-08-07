@@ -14,12 +14,12 @@ export default class Circle extends Component {
   onMove = () => {
     const anim1 = Animated.timing(this.state.marginLeft, {
       toValue: 160,
-      duration: 800,
+      duration: 1200,
       easing: Easing.linear()
     })
     const anim2 = Animated.timing(this.state.marginLeft, {
       toValue: 0,
-      duration: 800,
+      duration: 1200,
       easing: Easing.linear()
     })
 
