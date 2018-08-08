@@ -5,6 +5,11 @@ import Circle from '../components/circle'
 const { width, height } = Dimensions.get("window")
 
 export default class Level1 extends Component {
+  static navigationOptions = navigation => {
+    return {
+      header: null
+    }
+  }
   state = {
     x: 0,
     y: 0,

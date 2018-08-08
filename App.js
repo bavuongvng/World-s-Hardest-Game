@@ -9,16 +9,14 @@
 import React, { Component } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-
-import Level1 from './src/containers/level1'
-import Level2 from './src/containers/level2'
+import StackNav from './src/containers/Stack'
 
 type Props = {};
 export default class App extends Component<Props> {
   render() {
     return (
       <View style={styles.container}>
-        <Level2 />
+      <StackNav />
       </View>
     );
   }
